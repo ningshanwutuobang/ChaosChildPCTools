@@ -9,7 +9,7 @@ struct MPK_Head {
     unsigned int number;
     char unknow[0x34];
 } mpk_head;
-struct MPK_Index {//0xa0
+struct MPK_Index {
     unsigned int count;
     unsigned long long index;
     unsigned long long length;

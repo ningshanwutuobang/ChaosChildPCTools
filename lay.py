@@ -11,65 +11,65 @@ def main(filename,piece=True,Total=True):
 	if not infile:
 		print("cannot find ",ilename)
 		return
-	#使用zlib解压
+	#using zlib to decompress
 	b=b''
 	decompress = zlib.decompressobj()
 	data = infile.read(1024)
 	while data:
 		b+=decompress.decompress(data)
 		data = infile.read(1024)
-	#建立文件夹
+	#creat a folder 
 	p=0
 	folder=filename[0:filename.index('_.')]
 	os.system("mkdir "+folder)
-	#文件头为数量信息
+	#the head of the file is the number of images and piece blocks 
 	imageNum,pieceNum = struct.unpack("<2I",b[p:p+8])
 	print("Image have ",imageNum," parts.")
 	p+=8
-	#接着为像素块信息
+	#image information following
 	partNum=[]
 	partTree=[]
 	j=0
 	for i in range(imageNum):
 		a=struct.unpack("<4b",b[p:p+4])
 		partTree.append(a)
-		partNum.append(struct.unpack("<I",b[p+4:p+8])[0])#每大块的小块数
+		partNum.append(struct.unpack("<I",b[p+4:p+8])[0])#the block number of image
 		p+=12
 		j+=1
 	partNum.append(pieceNum)
-	#初始画板#像素块
+	#init the Canvas
 	dx=[0]*pieceNum
 	dy=[0]*pieceNum
 	parts=[0]*pieceNum
 	pngs=[]
 	pos=[]
-	minx,miny,maxx,maxy=0,0,0,0#确定还原后的图片大小
-	img=Image.open(filename[0:filename.index('_.')]+'.png')#未还原的原始图片
+	minx,miny,maxx,maxy=0,0,0,0#get the range of drawing block
+	img=Image.open(filename[0:filename.index('_.')]+'.png')#orign png file
 	can=Image.new ("RGBA", (4000,2000))
-	#获得每个大块
+	#get the images
 	j=0
 	for i in range(pieceNum+1):
 		f1,f2,f3,f4=struct.unpack('<4f',b[p:p+16])
-		f1,f2=f1+2000.0,f2+1000.0  #居中
+		f1,f2=f1+2000.0,f2+1000.0  #center
 		p+=16
 		if i==partNum[j]:
 			if i !=0 :
 				part=can.crop((minx,miny,maxx+30,maxy+30))
-				pngs.append(part)#大块
+				pngs.append(part)#images
 				pos.append((minx,miny,maxx+30,maxy+30))
 				if piece:
 					part.save(folder+"/"+str(j)+".png")
 					print("\tImage ",j," complete.")
-				can=Image.new("RGBA", (4000,2000))#重置画板
+				can=Image.new("RGBA", (4000,2000))#reset the Canvas
 			j+=1
 			minx,miny,maxx,maxy=int(f1),int(f2),int(f1),int(f2)
-		tmp=img.crop((int(f3)-1,int(f4)-1,int(f3)+31,int(f4)+31))#裁剪小块
+		tmp=img.crop((int(f3)-1,int(f4)-1,int(f3)+31,int(f4)+31))#piece block
 		x,y=int(f1),int(f2)
 		can.paste(tmp,(x,y))
 		minx,maxx=min(minx,x),max(maxx,x)
 		miny,maxy=min(miny,y),max(maxy,y)
 	if Total:
-		#组合大块得到立绘
+		#get the total pictures
 		if imageNum==1:
 			pngs[0].save(folder+"/"+filename[0:-4]+".png")
 			return
