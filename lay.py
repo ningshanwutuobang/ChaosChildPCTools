@@ -77,19 +77,26 @@ def main(filename,piece=True,Total=True):
 		partroot=[]
 		partindex=[]
 		j=0
-		path=[0]*2
-		for i in range(imageNum):
-			if (partTree[i][3]==0x40 or partTree[i][3]==0x60) :
+		path=[-1]*7
+		last=-1
+		for i in range(imageNum+1):
+			if i>=imageNum or int(partTree[i][3]/0x10)<=last :#last image is a leaf
 				can=Image.new("RGBA", (4000,2000))
-				can.paste(pngs[path[0]],(pos[path[0]][0],pos[path[0]][1]))
-				can.paste(pngs[path[1]],(pos[path[1]][0],pos[path[1]][1]))
-				can.paste(pngs[i],(pos[i][0],pos[i][1]))
-				part=can.crop(pos[path[0]])
+				minx,miny,maxx,maxy=pos[0]
+				for k in range(last+1):
+					if path[k]!=-1:
+						x,y,z,w=pos[path[k]]
+						minx,maxx=min(minx,x),max(maxx,x)
+						miny,maxy=min(miny,y),max(maxy,y)
+						can.paste(pngs[path[k]],(x,y))
+				part=can.crop((minx,miny,maxx,maxy))
 				part.save(folder+"/"+filename[0:-4]+"_"+str(j)+".png")
 				print("\t"+filename[0:-4]+"_"+str(j)+".png")
 				j+=1
-				continue
-			path[int(partTree[i][3]/0x20)]=i
+			if i<imageNum:
+				last=int(partTree[i][3]/0x10)
+				path[last]=i
+		
 			
 			
 	
