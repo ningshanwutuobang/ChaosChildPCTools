@@ -62,7 +62,7 @@ class Mvl:
                 #points and UV
                 x,y,z,u,v = struct.unpack("<5f",block)
                 assert z==0,"z!=0"
-                blocks.append((int(x),int(y),int(z),u,v))
+                blocks.append((f2int(x),f2int(y),f2int(z),u,v))
             
             self.pic[i]["block"] = blocks
     
@@ -77,6 +77,8 @@ class Mvl:
         pic_i = 0
         ret = {}
         for i in self.pic:
+            if i["length"] <=0 :
+                continue
             img = Image.new(size = (4000,2000),mode= "RGBA",color="#00000000")
             name = i["name"]
             point = i["block"][0]
@@ -89,20 +91,23 @@ class Mvl:
                 # resize to orignal
                 x,y = (point[0]//rx+2000,point[1]//ry+1000)
                 cp = pic.crop((point[3]*w,point[4]*h,point[3]*w+dw,point[4]*h+dh))
-                img.paste(cp,(int(x),int(y)),mask = cp)
+                img.paste(cp,(f2int(x),f2int(y)),mask = cp)
                 min_x = min(x,min_x)
                 max_x = max(x,max_x)
                 min_y = min(y,min_y)
                 max_y = max(y,max_y)
             max_x += dw
             max_y += dh
-            ret[name] = {"min_x": int((min_x-1000)*rx),
-                         "min_y": int((min_y-1000)*ry),
-                         "max_x": int((max_x-1000)*rx),
-                         "max_y": int((max_y-1000)*ry),
+            ret[name] = {"min_x": f2int((min_x-1000)*rx),
+                         "min_y": f2int((min_y-1000)*ry),
+                         "max_x": f2int((max_x-1000)*rx),
+                         "max_y": f2int((max_y-1000)*ry),
                          "image": img.crop((min_x,min_y,max_x,max_y))}
         return ret
-        
+
+def f2int(x):
+    return int(x+0.5)
+
 def find_filename(filename):
     if filename.endswith("_.mvl"):
         return (filename,filename[:-5]+".png")
