@@ -2,7 +2,9 @@ from PIL import Image
 
 import zlib
 import struct, os
-    
+
+import gxt
+
 class Mvl:
     """
     mvl format :
@@ -90,7 +92,7 @@ class Mvl:
                 point = i["block"][j]
                 # resize to orignal
                 x,y = (point[0]//rx+2000,point[1]//ry+1000)
-                cp = pic.crop((point[3]*w,point[4]*h,point[3]*w+dw,point[4]*h+dh))
+                cp = pic.crop((point[3]*w,point[4]*h,point[3]*w+dw,point[4]*h+dh)).convert("RGBA")
                 img.paste(cp,(f2int(x),f2int(y)),mask = cp)
                 min_x = min(x,min_x)
                 max_x = max(x,max_x)
@@ -110,8 +112,14 @@ def f2int(x):
 
 def find_filename(filename):
     if filename.endswith("_.mvl"):
-        return (filename,filename[:-5]+".png")
+        name = filename[:-5]+".png"
+        if os.path.exists(name):
+            return (filename,name)
+        else:
+            return (filename,filename[:-5]+".gxt")
     elif filename.endswith(".png"):
+        return (filename[:-4]+"_.mvl",filename)
+    elif filename.endswith(".gxt"):
         return (filename[:-4]+"_.mvl",filename)
     return (filename,filename[:-4]+".png")
 
