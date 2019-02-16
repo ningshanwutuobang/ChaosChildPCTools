@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os,sys,struct
 
 def main(filename):	

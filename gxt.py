@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from PIL import Image, ImageFile, ImagePalette
 import zlib, struct, io
 

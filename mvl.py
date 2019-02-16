@@ -1,9 +1,8 @@
+#!/usr/bin/env python3
 from PIL import Image
 
 import zlib
 import struct, os
-
-import gxt
 
 class Mvl:
     """
@@ -116,10 +115,12 @@ def find_filename(filename):
         if os.path.exists(name):
             return (filename,name)
         else:
+            import gxt
             return (filename,filename[:-5]+".gxt")
     elif filename.endswith(".png"):
         return (filename[:-4]+"_.mvl",filename)
     elif filename.endswith(".gxt"):
+        import gxt
         return (filename[:-4]+"_.mvl",filename)
     return (filename,filename[:-4]+".png")
 
