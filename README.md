@@ -22,3 +22,7 @@ convert .gxt file to .png file
 ```
 python3 gxt.py <gxtfile>
 ```
+
+* view.html for index.json and *.png
+A simple viewer for *.png file located by index.json .
+Copy it into the location of index.json and open it.

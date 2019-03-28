@@ -1,0 +1,93 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <title>Simple View</title>
+    <meta charset="utf8" />
+</head>
+<body>
+<div id="imgs_check">
+</div>
+<div>
+<center>
+<div id="imgs">
+</div>
+</center>
+</div>
+</script>
+<script>
+    function load_json(filename,call_back){
+        var requestURL = filename;
+        var request = new XMLHttpRequest();
+        request.open('GET', requestURL);
+        request.responseType = 'json';
+        request.send();
+        request.onload = function() {
+            var data = request.response;
+            call_back(data);
+        }
+    }
+    function set_checkbox(imgs,item) {
+        var html = "";
+        for(var key in imgs){
+            html += '<label><input id="checkbox-'+key+'" type="checkbox" checked="true" value="'+key+'"/>'+key+'</label>\n'; 
+        }
+        item.innerHTML = html;
+        
+        for(var key in imgs){
+            var checkbox = document.getElementById("checkbox-"+key);
+            checkbox.addEventListener('click',function(){
+                var img = document.getElementById("img-"+this.value);
+                if (!this.checked) {
+                    img.style.display = "none";
+                } else {
+                    img.style.display = "inline";
+                }
+            },false);
+        }
+    }
+    
+    function display_imgs(imgs,item) {
+        var l_min_x = [];
+        var l_min_y = [];
+        var l_max_x = [];
+        var l_max_y = [];
+        for(var key in imgs) {
+            l_min_x.push(imgs[key].min_x);
+            l_min_y.push(imgs[key].min_y);
+            l_max_x.push(imgs[key].max_x);
+            l_max_y.push(imgs[key].max_y);
+        }
+        var min_x =Math.min.apply(null,l_min_x);
+        var min_y =Math.min.apply(null,l_min_y);
+        var max_x =Math.max.apply(null,l_max_x);
+        var max_y =Math.max.apply(null,l_max_y);
+        var html = "<style>";
+        html += ".img{position:relative;\n";
+        html += "width:"+(max_x-min_x)+"px;\n";
+        html += "height:"+(max_y-min_y)+"px;}\n";
+        for(var key in imgs){
+            html += ".img-"+key+"{";
+            html += "position: absolute;\n";
+            html += "left:"+(imgs[key].min_x - min_x)+"px;\n";
+            html += "top:"+(imgs[key].min_y- min_y )+"px;\n";
+            html += "width:"+(imgs[key].max_x - imgs[key].min_x)+"px;\n";
+            html += "height:"+(imgs[key].max_y - imgs[key].min_y)+"px;\n";
+            //html += "pointer-events:none;\n";
+            html += "}\n";
+        }
+        html += "</style>";
+        html += '<div class="img">';
+        for(var key in imgs){
+            html += '<img class="img-'+key+'" id ="img-'+key+'" src="'+key+'.png"/>';
+        }
+        html += "</div>";
+        item.innerHTML = html
+    }
+    function call_back(data) {
+        display_imgs(data,document.getElementById("imgs"));
+        set_checkbox(data,document.getElementById("imgs_check"));
+    }
+    load_json("index.json",call_back);
+</script>
+</body>
+</html>
