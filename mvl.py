@@ -84,13 +84,13 @@ class Mvl:
             name = i["name"]
             point = i["block"][0]
             
-            x,y = (point[0]//rx+2000,point[1]//ry+1000)
+            x,y = (point[0]/rx+2000,point[1]/ry+1000)
             min_x,max_x,min_y,max_y = (x,y,x,y)
             #step ever two triangles
             for j in range(0,len(i["block"]),6):
                 point = i["block"][j]
                 # resize to orignal
-                x,y = (point[0]//rx+2000,point[1]//ry+1000)
+                x,y = (point[0]/rx+2000,point[1]/ry+1000)
                 cp = pic.crop((point[3]*w,point[4]*h,point[3]*w+dw,point[4]*h+dh)).convert("RGBA")
                 img.paste(cp,(f2int(x),f2int(y)),mask = cp)
                 min_x = min(x,min_x)
@@ -107,7 +107,9 @@ class Mvl:
         return ret
 
 def f2int(x):
-    return int(x+0.5)
+    if abs(int(x)-x) > 0.5:
+        return int(x+0.5)
+    return int(x)
 
 def find_filename(filename):
     if filename.endswith("_.mvl"):
