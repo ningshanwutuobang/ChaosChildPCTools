@@ -80,7 +80,7 @@ class Mvl:
         for i in self.pic:
             if i["length"] <=0 :
                 continue
-            img = Image.new(size = (4000,2000),mode= "RGBA",color="#00000000")
+            img = Image.new(size = (6000,10000),mode= "RGBA",color="#00000000")
             name = i["name"]
             point = i["block"][0]
             
@@ -113,13 +113,16 @@ def f2int(x):
 
 def find_filename(filename):
     if filename.endswith("_.mvl"):
-        name = filename[:-5]+".png"
-        if os.path.exists(name):
-            return (filename,name)
+        namewe = filename[:-5]+".webp"
+        namepn = filename[:-5]+".png"
+        if os.path.exists(namewe):
+            return (filename,namewe)
+        elif os.path.exists(namepn):
+            return (filename,namepn)
         else:
             import gxt
             return (filename,filename[:-5]+".gxt")
-    elif filename.endswith(".png"):
+    elif filename.endswith(".png") or filename.endswith(".webp"):
         return (filename[:-4]+"_.mvl",filename)
     elif filename.endswith(".gxt"):
         import gxt
@@ -129,7 +132,7 @@ def find_filename(filename):
 def cstr(s):
     p = "{}s".format(len(s))
     s = struct.unpack(p,s)[0]
-    return str(s.replace(b"\x00",b""),encoding = "sjis")           
+    return str(s.replace(b"\x00",b"").replace(b"\xFE",b""),encoding = "sjis")           
         
 def process_data(mvl_data,pic):
     mvl = Mvl(mvl_data)
