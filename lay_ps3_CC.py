@@ -88,7 +88,7 @@ def main(filename,piece=True,Total=True):
 		path=[-1]*7
 		last=-1
 		for i in range(imageNum+1):
-			if i>=imageNum or int(partTree[i][3]/0x10)<=last :#last image is a leaf
+			if i>=imageNum or int(partTree[i][0]/0x10)<=last :#last image is a leaf
 				can=Image.new("RGBA", (6000,6000))
 				minx,miny,maxx,maxy=pos[0]
 				for k in range(last+1):
@@ -102,7 +102,7 @@ def main(filename,piece=True,Total=True):
 				print("\t"+filename[0:-4]+str(j)+".png")
 				j+=1
 			if i<imageNum:
-				last=int(partTree[i][3]/0x10)
+				last=int(partTree[i][0]/0x10)
 				path[last]=i
 		
 			
