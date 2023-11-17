@@ -27,7 +27,7 @@ def main(filename,piece=True,Total=True):
 	#creat a folder 
 	p=0
 	folder=filename[0:filename.index('_.')]
-	os.system("mkdir "+folder)
+	os.system("mkdir \""+folder+"\"")
 	#the head of the file is the number of images and piece blocks 
 	imageNum,pieceNum = struct.unpack(">2I",b[p:p+8])
 	p+=8
@@ -79,7 +79,7 @@ def main(filename,piece=True,Total=True):
 	if Total:
 		#get the total pictures
 		if imageNum==1:
-			pngs[0].save(folder+"/"+filename[0:-4]+".png")
+			pngs[0].save(folder+"/"+os.path.split(filename)[1][0:-4]+".png")
 			return
 		partType=[0]*imageNum
 		partroot=[]
@@ -98,7 +98,7 @@ def main(filename,piece=True,Total=True):
 						miny,maxy=min(miny,y),max(maxy,y)
 						can.paste(pngs[path[k]],(x,y),mask=pngs[path[k]])
 				part=can.crop((minx,miny,maxx,maxy))
-				part.save(folder+"/"+filename[0:-4]+str(j)+".png")
+				part.save(folder+"/"+os.path.split(filename)[1][0:-4]+str(j)+".png")
 				print("\t"+filename[0:-4]+str(j)+".png")
 				j+=1
 			if i<imageNum:

@@ -4,7 +4,7 @@ import os,sys,struct
 def main(filename):	
 	infile = open(filename, 'rb')
 	if not infile:
-		print("cannot find ",ilename)
+		print("cannot find "+filename)
 		return
 	data = struct.unpack("4c",infile.read(4))
 	if data != (b'M',b'P',b'K',b'\x00'):
@@ -19,7 +19,7 @@ def main(filename):
 	
 	#creat a folder 
 	folder=filename[:-4]
-	os.system("mkdir "+folder)
+	os.system("mkdir \""+folder+"\"")
 	#index table
 	files=[]
 	l=len(folder)-1
@@ -42,7 +42,7 @@ def main(filename):
 		fd=name[i][:a]
 		#subdirectory
 		if a>0 and not fd in floders:
-			os.system("mkdir "+folder+"\\"+str(name[i][:a],"sjis"))
+			os.system("mkdir \""+folder+"\\"+str(name[i][:a],"sjis")+"\"")
 			floders.add(fd)
 			a=fd.rfind(b'\\')-1
 			while a>0:
