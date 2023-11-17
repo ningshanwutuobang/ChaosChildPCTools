@@ -58,3 +58,5 @@ python3 mvl_steam_CHN.py <file>
 
 * mpk.py update for .mpk files from PSV  
 Some PSV games uses mpk format in a different way, it's supported now.  
+
+Due to the 10.1.0 update of Pillow changed Image.mode related methods, gxt.py may no longer work properly on more recent Pillow versions. If you encounter problems, please roll back to Pillow version 10.0. The correction method currently used comes from [imageio](https://github.com/imageio/imageio/commit/f58379c1ae7fbd1da8689937b39e499e2d225740) with BSD-2 license.
