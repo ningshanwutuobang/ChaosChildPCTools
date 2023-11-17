@@ -10,8 +10,13 @@ def main(filename):
 	if data != (b'M',b'P',b'K',b'\x00'):
 		print("unknow file type!")
 		return
-	tmp,number=struct.unpack("<2I",infile.read(8))
+	version, number = struct.unpack("<2I", infile.read(8))
+	# if version == 0x00010000(65536) --> PSV special format
+	# version == 0x00020000 --> normal
+	
 	infile.read(0x34)
+	# start from 0x40
+	
 	#creat a folder 
 	folder=filename[:-4]
 	os.system("mkdir "+folder)
@@ -24,7 +29,10 @@ def main(filename):
 	name=[0]*number
 	floders=set()
 	for i in range(number):
-		tmp,count[i],index[i],length[i],tmp2,name[i]=struct.unpack("IIQQQ224s",infile.read(0x100))
+		if (version == 65536):
+			tmp,index[i],length[i],tmp2,tmp3,tmp4,name[i]=struct.unpack("IIIIQQ224s",infile.read(0x100))
+		else:
+			tmp,count[i],index[i],length[i],tmp2,name[i]=struct.unpack("IIQQQ224s",infile.read(0x100))
 		a=name[i].find(b'\x00')
 		name[i]=name[i][:a]
 		if a==0:
