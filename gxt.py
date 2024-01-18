@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from PIL import Image, ImageFile, ImagePalette
+from PIL import __version__ as pil_version
 import zlib, struct, io
 
 class GxtHeader:
@@ -57,7 +58,14 @@ class GxtImageFile(ImageFile.ImageFile):
         assert self.header.textures_num == 1,"multi textures unsupport"
         self.texture = GxtTextureInfo(self.fp.read(0x20))
         self._size = (self.texture.width, self.texture.height)
-        self.mode = "P"
+        
+        # self.mode will not be supported since pillow 10.1.0
+        major, minor, patch = pillow_version()
+        if (major < 10) or (major == 10 and minor == 0):
+            self.mode = "P"
+        else:
+            self._mode = "P"
+        
         self.tile = [
             ("gxt", (0, 0) + self.size,0, (self.header,self.texture))
         ]
@@ -132,6 +140,9 @@ def unswizzle(data,width,height):
         x,y = get_xy(i)
         ret[y*width+x] = data[i]
     return bytes(ret)
+    
+def pillow_version() -> tuple[int]:
+    return tuple(int(x) for x in pil_version.split("."))
 
 Image.register_open("GXT", GxtImageFile)
 Image.register_decoder("gxt", GxtDecoder)

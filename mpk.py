@@ -4,17 +4,22 @@ import os,sys,struct
 def main(filename):	
 	infile = open(filename, 'rb')
 	if not infile:
-		print("cannot find ",ilename)
+		print("cannot find "+filename)
 		return
 	data = struct.unpack("4c",infile.read(4))
 	if data != (b'M',b'P',b'K',b'\x00'):
 		print("unknow file type!")
 		return
-	tmp,number=struct.unpack("<2I",infile.read(8))
+	version, number = struct.unpack("<2I", infile.read(8))
+	# if version == 0x00010000(65536) --> PSV special format
+	# version == 0x00020000 --> normal
+	
 	infile.read(0x34)
+	# start from 0x40
+	
 	#creat a folder 
 	folder=filename[:-4]
-	os.system("mkdir "+folder)
+	os.system("mkdir \""+folder+"\"")
 	#index table
 	files=[]
 	l=len(folder)-1
@@ -24,7 +29,10 @@ def main(filename):
 	name=[0]*number
 	floders=set()
 	for i in range(number):
-		tmp,count[i],index[i],length[i],tmp2,name[i]=struct.unpack("IIQQQ224s",infile.read(0x100))
+		if (version == 65536):
+			tmp,index[i],length[i],tmp2,tmp3,tmp4,name[i]=struct.unpack("IIIIQQ224s",infile.read(0x100))
+		else:
+			tmp,count[i],index[i],length[i],tmp2,name[i]=struct.unpack("IIQQQ224s",infile.read(0x100))
 		a=name[i].find(b'\x00')
 		name[i]=name[i][:a]
 		if a==0:
@@ -34,7 +42,7 @@ def main(filename):
 		fd=name[i][:a]
 		#subdirectory
 		if a>0 and not fd in floders:
-			os.system("mkdir "+folder+"\\"+str(name[i][:a],"sjis"))
+			os.system("mkdir \""+folder+"\\"+str(name[i][:a],"sjis")+"\"")
 			floders.add(fd)
 			a=fd.rfind(b'\\')-1
 			while a>0:

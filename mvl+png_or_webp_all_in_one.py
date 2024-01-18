@@ -2,7 +2,8 @@
 from PIL import Image
 
 import zlib
-import struct, os
+import struct
+import os
 
 class Mvl:
     """
@@ -19,8 +20,10 @@ class Mvl:
     
     """
     def __init__(self,data):
+        # 初始化，可能算是构造函数的作用 ？
         if data.startswith(b"\x78\x9c"):
             data = zlib.decompress(data)
+        #     如果二进制数据以指定的 prefix 开头则返回 True，否则返回 False。 prefix 也可以为由多个供查找的前缀构成的元组。
         self.data = data
         assert self.data[0:4] == b"MVL1","Magic ERROR: {}".format(self.data[0:4])
         self.n, = struct.unpack("<I",self.data[4:8])
@@ -138,31 +141,50 @@ def process_data(mvl_data,pic):
     mvl = Mvl(mvl_data)
     return mvl.combine(pic)
 
-def main():
-    import argparse
-    parser = argparse.ArgumentParser("python3 mvl.py")
-    parser.add_argument("filename")
-    args =  parser.parse_args()
-    mvl,pic = find_filename(args.filename)
-    
+
+def get_path_file(files_path):
+    data = []
+    for root, dirs, files in os.walk(files_path, topdown=False):
+        for name in files:
+            f_p = os.path.join(name).replace("\\", "/")
+            if f_p.endswith("_.mvl"):
+                pack(f_p)
+                print(f_p+"转换完成！")
+                print('\n')
+    print("finish")
+
+
+def pack(fileName):
+
+    mvl,pic = find_filename(fileName)
+    # 根据函数内容可知，第一个参数返回的是mvl，第二个参数返回的是png格式的图片
+
     with open(mvl,"rb") as f:
         mvl_data = f.read()
     pic = Image.open(pic)
-    
+    '''
+    读文件，将mvl文件读取到mvl_data，再将pic文件打开，载入到pic变量中
+    '''
+
     dir = mvl[:-5]
     if not os.path.exists(dir) :
         os.mkdir(dir)
+    #     将目录转到相应的文件夹，如果没有，则创建一个
     data = process_data(mvl_data,pic)
+    # mvl_data读取的是mvl文件
     for i in data:
         data[i]["image"].save(dir+"/"+i+".png")
-    
+
     for i in data:
         del data[i]["image"]
     import json
     with open(dir+"/index.json","w") as f:
         json.dump(data, f)
-        
-    
+
+def main():
+    print("开始转换咯~")
+    get_path_file('./')
+
 if __name__ == "__main__":
     main()
     

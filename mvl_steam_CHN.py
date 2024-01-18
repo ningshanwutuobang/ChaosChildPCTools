@@ -112,28 +112,53 @@ def f2int(x):
     return int(x)
 
 def find_filename(filename):
-    if filename.endswith("_.mvl"):
-        namewe = filename[:-5]+".webp"
-        namepn = filename[:-5]+".png"
-        if os.path.exists(namewe):
-            return (filename,namewe)
-        elif os.path.exists(namepn):
-            return (filename,namepn)
-        else:
-            import gxt
-            return (filename,filename[:-5]+".gxt")
-    elif filename.endswith(".png") or filename.endswith(".webp"):
-        return (filename[:-4]+"_.mvl",filename)
-    elif filename.endswith(".gxt"):
-        import gxt
-        return (filename[:-4]+"_.mvl",filename)
-    return (filename,filename[:-4]+".png")
+    if filename.find(".") == -1:
+        strlen = len(filename)
+        if parseint(filename)%2 == 0:#input pic
+            filenamemvl = inttostrfill(parseint(filename)+1,strlen)
+            if not os.path.exists(filenamemvl):
+                print("Error input pic and mvl-file without extension not found")
+                os._exit(0)
+            else:
+                return (filenamemvl,filename)
+        else:#input mvl
+            filenamepic = inttostrfill(parseint(filename)-1,strlen)
+            namewe = filenamepic+".webp"
+            namepn = filenamepic+".wav"
+            if os.path.exists(namewe):
+                return (filename,namewe)
+            elif os.path.exists(namepn):
+                os.rename(namepn,namepn[:-4]+".webp")
+                return (filename,namewe)
+            else:
+                print("Error input mvl and picture not found")
+                os._exit(0)
+    elif filename.endswith(".wav"):
+        strlen = len(filename[:-4])
+        filenamemvl = inttostrfill(parseint(filename[:-4])+1,strlen)
+        os.rename(filename,filename[:-4]+".webp")
+        return (filenamemvl,filename[:-4]+".webp")
+    elif filename.endswith(".webp"):
+        strlen = len(filename[:-5])
+        filenamemvl = inttostrfill(parseint(filename[:-5])+1,strlen)
+        return (filenamemvl,filename)
+    print("Error unknown input format")
+    os._exit(0)
 
 def cstr(s):
     p = "{}s".format(len(s))
     s = struct.unpack(p,s)[0]
-    return str(s.replace(b"\x00",b"").replace(b"\xFE",b""),encoding = "sjis")           
-        
+    return str(s.replace(b"\x00",b"").replace(b"\xFE",b""),encoding = "sjis")
+
+def parseint(string):
+    return int(''.join([x for x in string if x.isdigit()]))
+
+def inttostrfill(inint, leng):
+    string = str(inint)
+    while(len(string) < leng):
+        string = "0" + string
+    return string
+
 def process_data(mvl_data,pic):
     mvl = Mvl(mvl_data)
     return mvl.combine(pic)
@@ -144,12 +169,13 @@ def main():
     parser.add_argument("filename")
     args =  parser.parse_args()
     mvl,pic = find_filename(args.filename)
+
+    dir = pic[:-5]
     
     with open(mvl,"rb") as f:
         mvl_data = f.read()
     pic = Image.open(pic)
     
-    dir = mvl[:-5]
     if not os.path.exists(dir) :
         os.mkdir(dir)
     data = process_data(mvl_data,pic)
